@@ -46,9 +46,45 @@ The checks that actually break a solution all pass. Reducing the spanwise
 thickness does **not** change it — the metric is driven by the in-plane cells,
 which is worth knowing before spending time on it.
 
-Cd being 45% high is the honest open item. It is a resolution problem, not a
-setup one — 80 cells around the aerofoil is coarse, and the mesh-independence
-study is the next step rather than an afterthought.
+Cd being high on the base mesh is a resolution problem, not a setup one, and
+the mesh independence study below settles it.
+
+## Mesh independence
+
+`study.py` refines **every** direction by 1.5 — including the near-wall spacing,
+so y+ falls 2.2 → 1.4 → 0.95 across the sequence. Holding the wall spacing
+fixed while refining only tangentially is the usual shortcut, and it invalidates
+Richardson extrapolation because the meshes then differ in more than one
+parameter.
+
+| | cells | first cell | y+ max | Cd | Cl |
+|---|---|---|---|---|---|
+| L1 | 7 520 | 2.11e-05 | 2.20 | 0.014407 | +7.6e-07 |
+| L2 | 16 800 | 1.40e-05 | 1.39 | 0.011505 | +1.8e-06 |
+| L3 | 37 800 | 9.35e-06 | 0.95 | 0.009800 | +1.5e-07 |
+
+Monotone, and Cl stays at the 1e-6 level throughout — the symmetry that the
+gradient limiter destroyed holds at every refinement.
+
+Roache's Grid Convergence Index on the three levels:
+
+| | |
+|---|---|
+| Observed order of convergence | **p = 1.31** |
+| Richardson extrapolation to h→0 | **Cd = 0.00737** |
+| GCI on the finest grid | **31%** |
+| Published (Abbott & Von Doenhoff) | 0.0080 |
+| Extrapolated vs published | **−7.9%** |
+
+The order is 1.31 rather than the scheme's formal 2. That is normal and worth
+stating plainly: the divergence terms on k and omega use `limitedLinear`, which
+is first-order where it limits, and the sequence is not yet deep in the
+asymptotic range.
+
+**The 31% GCI is the honest headline, not the −7.9%.** It says the finest grid
+still carries substantial discretisation uncertainty, so the agreement with
+published data is better than the mesh alone can justify. Quoting −7.9% without
+it would overclaim.
 
 ## Core concepts
 
