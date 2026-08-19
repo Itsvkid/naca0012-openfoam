@@ -38,7 +38,7 @@ write lands in the container and vanishes with `--rm`.
 | checkMesh | non-orthogonality **69.7 max** (limit 70), skewness **1.00**, no negative volumes |
 | y+ on the aerofoil | **0.45 – 0.93**, average 0.68 — resolved, no wall functions |
 | Cl at α = 0 | **−4.2e-05** — symmetry holds, as a NACA 0012 requires |
-| Cd at α = 0 | **0.0116** against ~0.008 published — 45% high, see below |
+| Cd at α = 0 | **0.009111** on the finest mesh; 0.008645 extrapolated to h→0 |
 
 checkMesh reports one failure, high aspect ratio. That is inherent to a
 boundary layer resolved to y+ < 1: the wall cell is 9.4 µm tall and 25 mm long.
@@ -62,29 +62,55 @@ parameter.
 | L1 | 7 520 | 2.11e-05 | 2.20 | 0.014407 | +7.6e-07 |
 | L2 | 16 800 | 1.40e-05 | 1.39 | 0.011505 | +1.8e-06 |
 | L3 | 37 800 | 9.35e-06 | 0.95 | 0.009800 | +1.5e-07 |
+| L4 | 85 050 | 6.24e-06 | 0.69 | **0.009111** | +1.5e-06 |
 
-Monotone, and Cl stays at the 1e-6 level throughout — the symmetry that the
-gradient limiter destroyed holds at every refinement.
+Monotone, and Cl stays at the 1e-6 level throughout — the symmetry the gradient
+limiter destroyed holds at every refinement.
 
-Roache's Grid Convergence Index on the three levels:
+![Grid convergence](validation/grid-convergence.png)
+
+Roache's Grid Convergence Index on the three finest levels:
 
 | | |
 |---|---|
-| Observed order of convergence | **p = 1.31** |
-| Richardson extrapolation to h→0 | **Cd = 0.00737** |
-| GCI on the finest grid | **31%** |
+| Observed order of convergence | **p = 2.24** |
+| Richardson extrapolation to h→0 | **Cd = 0.008645** |
+| GCI on the finest grid | **6.4%** |
 | Published (Abbott & Von Doenhoff) | 0.0080 |
-| Extrapolated vs published | **−7.9%** |
+| Extrapolated vs published | **+8.1%** |
 
-The order is 1.31 rather than the scheme's formal 2. That is normal and worth
-stating plainly: the divergence terms on k and omega use `limitedLinear`, which
-is first-order where it limits, and the sequence is not yet deep in the
-asymptotic range.
+### Why the fourth level mattered
 
-**The 31% GCI is the honest headline, not the −7.9%.** It says the finest grid
-still carries substantial discretisation uncertainty, so the agreement with
-published data is better than the mesh alone can justify. Quoting −7.9% without
-it would overclaim.
+On the three *coarsest* levels the same analysis reported p = 1.31, an
+extrapolation of 0.00737 and a GCI of 31%. Adding L4 moved the observed order
+to 2.24 — close to the scheme's formal second order — and cut the uncertainty
+band to 6.4%.
+
+The extrapolated value moved from 0.00737 to 0.008645, which is **the opposite
+side of the published figure**. The coarse-grid answer was not merely less
+precise, it was biased the other way, and it looked perfectly respectable at
+the time: monotone sequence, plausible order, a number agreeing with published
+data to 8%.
+
+That is the argument for computing the observed order rather than assuming
+p = 2, and for not trusting an extrapolation until the order it reports is
+close to the scheme's. Three grids are the minimum the method needs; they are
+not necessarily enough to be in the asymptotic range.
+
+### The residual 8%
+
+The discrepancy (+8.1%) slightly exceeds the numerical uncertainty (6.4%), so
+it is not all discretisation — a modelling difference remains, and its sign is
+the expected one.
+
+k-omega SST with no transition model computes **fully turbulent** flow from the
+leading edge. The published measurement is a smooth aerofoil at Re 6e6 with
+natural transition, which leaves a laminar run over the forward chord and lower
+skin friction with it. A fully turbulent computation should over-predict drag,
+and about 8% is a reasonable size for that difference at this Reynolds number.
+
+Confirming it needs a transition-sensitive model — `kOmegaSSTLM` is the obvious
+next experiment — rather than being asserted here.
 
 ## Core concepts
 
@@ -126,7 +152,7 @@ case/
 - [ ] y+ verified from the solution, not just estimated beforehand
 - [ ] Residuals converged, and force coefficients flat — residuals alone are
       not convergence
-- [ ] Mesh independence across three refinements
+- [x] Mesh independence across four refinements, with GCI
 - [ ] Cl vs alpha plotted against published data
 - [ ] Cd vs alpha plotted against published data, with the discrepancy
       discussed honestly
@@ -174,4 +200,5 @@ not to be the cause of the asymmetry above — blockMesh collapses the duplicate
 
 | Date | What was done |
 |---|---|
+| 2026-08-19 | Mesh independence study: four levels, 7.5k to 85k cells, refining wall spacing with everything else so Richardson applies. Observed order 2.24, extrapolated Cd 0.008645, GCI 6.4%. The three coarsest levels alone gave p=1.31 and an extrapolation on the opposite side of the published value — a good reminder that three grids are the method's minimum, not proof of asymptotic behaviour. |
 | 2026-08-19 | OpenFOAM v2512 running natively on arm64 under colima. `src/cgrid.py` generates a 6-block structured C-grid — six because blockMesh identifies an edge by its vertex pair, so the whole upper and whole lower surface would both be edge (LE, TE) and only one can exist; splitting each surface at mid-chord gives every curved edge a unique pair. `src/case.py` generates fields, properties and solver control from Re and alpha. y+ tuned to ~1 by solving the geometric series for the radial grading. Found the gradient limiter breaking symmetry. 24 tests. |
