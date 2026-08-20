@@ -91,6 +91,20 @@ def load(path) -> Reference:
         if "alpha" not in p or not ({"cl", "cd"} & set(p)):
             raise ValueError(f"{path.name}: every point needs alpha and cl or cd")
 
+    # If the source printed its own lift-to-drag column, use it. Cl/Cd must
+    # reproduce it, and a transposed or misread digit in either coefficient
+    # breaks the ratio even though both numbers still look plausible on their
+    # own. This is the cheapest check there is on a digitised table, and it
+    # catches the error that matters most.
+    for p in points:
+        if {"cl", "cd", "l_over_d"} <= set(p) and p["cd"]:
+            if abs(p["cl"] / p["cd"] - p["l_over_d"]) > 0.1:
+                raise ValueError(
+                    f"{path.name}: at alpha {p['alpha']}, Cl/Cd = "
+                    f"{p['cl'] / p['cd']:.2f} but the source prints "
+                    f"{p['l_over_d']:.2f}. One of the three was misread."
+                )
+
     if str(raw["surface_condition"]).lower() not in ("smooth", "standard roughness"):
         raise ValueError(
             f"surface_condition {raw['surface_condition']!r} is not one of "

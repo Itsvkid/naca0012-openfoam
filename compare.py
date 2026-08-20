@@ -64,18 +64,19 @@ def main() -> None:
     print(f"{'alpha':>7} {'Cl':>9} {'Cl exp':>9} {'ΔCl':>8} "
           f"{'Cd':>9} {'Cd exp':>9} {'Δ counts':>9}")
     for r in rows:
-        fmt = lambda v, s: f"{v:{s}}" if v is not None else " " * int(s.split(".")[0].strip(">+"))
+        def fmt(v, width, prec):
+            return f"{v:>+{width}.{prec}f}" if v is not None else " " * width
         print(f"{r['alpha']:>+7.1f} {r['cl']:>+9.4f} "
-              f"{fmt(r['cl_ref'], '>+9.4f')} {fmt(r['cl_delta'], '>+8.4f')} "
-              f"{r['cd']:>9.5f} {fmt(r['cd_ref'], '>9.5f')} "
-              f"{fmt(r['cd_counts'], '>+9.1f')}")
+              f"{fmt(r['cl_ref'], 9, 4)} {fmt(r['cl_delta'], 8, 4)} "
+              f"{r['cd']:>9.5f} {fmt(r['cd_ref'], 9, 5)} "
+              f"{fmt(r['cd_counts'], 9, 1)}")
 
     inside = [r for r in rows if r["in_range"]]
     outside = [r for r in rows if not r["in_range"]]
     if outside:
-        print(f"\n{len(outside)} computed angles lie outside the measured range "
-              f"and are not compared: "
-              f"{', '.join(f'{r[chr(39)+chr(39)] if False else r['alpha']:+.0f}°' for r in outside)}")
+        angles = ", ".join(f"{r['alpha']:+.0f}deg" for r in outside)
+        print(f"\n{len(outside)} computed angles lie outside the measured "
+              f"range and are not compared: {angles}")
     if inside:
         cl_d = [abs(r["cl_delta"]) for r in inside if r["cl_delta"] is not None]
         cd_c = [abs(r["cd_counts"]) for r in inside if r["cd_counts"] is not None]

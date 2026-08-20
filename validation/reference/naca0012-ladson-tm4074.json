@@ -1,0 +1,110 @@
+{
+  "source": "Ladson, C. L., NASA Technical Memorandum 4074 (1988): Effects of Independent Variation of Mach and Reynolds Numbers on the Low-Speed Aerodynamic Characteristics of the NACA 0012 Airfoil Section. Langley Low-Turbulence Pressure Tunnel.",
+  "figure": "Table VII, Force Coefficients at M = 0.15 for Transition Fixed With No. 60-W Grit, block R = 6.00 x 10^6",
+  "url": "https://ntrs.nasa.gov/api/citations/19880019495/downloads/19880019495.pdf",
+  "reynolds": 6000000.0,
+  "mach": 0.15,
+  "surface_condition": "standard roughness",
+  "digitised_by": "extracted from the PDF text layer, every row cross-checked against the report own L/D column (worst disagreement 0.024, consistent with 4-5 significant figure rounding)",
+  "notes": "Transition fixed with grit, which is the correct comparison for a fully turbulent computation with no transition model. Experiment is at M = 0.15 against an incompressible computation; the Prandtl-Glauert factor is 1.011, so compressibility accounts for about 1% of lift. Stall occurs between 14.02 and 15.06 degrees with Cl_max 1.2169.",
+  "points": [
+    {
+      "alpha": -4.15,
+      "cl": -0.4455,
+      "cd": 0.01048,
+      "cm": -0.0022,
+      "l_over_d": -42.53
+    },
+    {
+      "alpha": -2.13,
+      "cl": -0.2321,
+      "cd": 0.00905,
+      "cm": -0.0011,
+      "l_over_d": -25.64
+    },
+    {
+      "alpha": 0.0,
+      "cl": -0.0043,
+      "cd": 0.00895,
+      "cm": -0.0002,
+      "l_over_d": -0.48
+    },
+    {
+      "alpha": 2.06,
+      "cl": 0.2145,
+      "cd": 0.00945,
+      "cm": 0.0008,
+      "l_over_d": 22.69
+    },
+    {
+      "alpha": 4.06,
+      "cl": 0.4296,
+      "cd": 0.00976,
+      "cm": 0.002,
+      "l_over_d": 44.04
+    },
+    {
+      "alpha": 6.01,
+      "cl": 0.6359,
+      "cd": 0.01116,
+      "cm": 0.0037,
+      "l_over_d": 56.99
+    },
+    {
+      "alpha": 8.03,
+      "cl": 0.8354,
+      "cd": 0.01406,
+      "cm": 0.0066,
+      "l_over_d": 59.43
+    },
+    {
+      "alpha": 10.12,
+      "cl": 1.0209,
+      "cd": 0.01928,
+      "cm": 0.0112,
+      "l_over_d": 52.96
+    },
+    {
+      "alpha": 11.17,
+      "cl": 1.1002,
+      "cd": 0.02188,
+      "cm": 0.0146,
+      "l_over_d": 50.28
+    },
+    {
+      "alpha": 12.05,
+      "cl": 1.1585,
+      "cd": 0.02551,
+      "cm": 0.0177,
+      "l_over_d": 45.42
+    },
+    {
+      "alpha": 13.24,
+      "cl": 1.2083,
+      "cd": 0.032,
+      "cm": 0.0221,
+      "l_over_d": 37.76
+    },
+    {
+      "alpha": 14.02,
+      "cl": 1.2169,
+      "cd": 0.03891,
+      "cm": 0.0246,
+      "l_over_d": 31.27
+    },
+    {
+      "alpha": 15.06,
+      "cl": 0.947,
+      "cd": 0.21816,
+      "cm": -0.0828,
+      "l_over_d": 4.34
+    },
+    {
+      "alpha": 16.16,
+      "cl": 0.8884,
+      "cd": 0.25187,
+      "cm": -0.094,
+      "l_over_d": 3.53
+    }
+  ]
+}

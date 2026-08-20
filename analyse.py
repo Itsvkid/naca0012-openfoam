@@ -19,9 +19,24 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 HERE = Path(__file__).parent
 
-# Abbott & Von Doenhoff, NACA 0012, Re 6e6, alpha 0, smooth surface.
-# Carried in code, not transcribed from the source — verify before publishing.
-PUBLISHED_CD = 0.0080
+# Read from the digitised reference rather than hard-coded. The constant that
+# used to sit here was 0.0080, taken from memory, and it was wrong for this
+# condition: that figure belongs to a smooth aerofoil with free transition,
+# while this computation is fully turbulent and must be compared against the
+# tripped case, which is 0.00895 at Re 6e6. The bad constant made the
+# extrapolated drag look 8.1% high when it is in fact 3.4% low. A number
+# carried in code with no provenance is exactly the failure the reference
+# loader exists to prevent, so the loader supplies it.
+REFERENCE = HERE / "validation" / "reference" / "naca0012-ladson-tm4074.json"
+
+
+def published_cd(alpha: float = 0.0):
+    """Experimental drag at `alpha`, or None if no reference is digitised yet."""
+    try:
+        from src.reference import load
+        return load(REFERENCE).interpolate(alpha, "cd")
+    except (FileNotFoundError, ValueError):
+        return None
 
 THEMES = {
     "light": {"surface": "#fcfcfb", "ink": "#0b0b0b", "ink_muted": "#52514e",
@@ -91,9 +106,11 @@ def figure(data, theme="light", suffix=""):
         ax.plot([0], [res["extrapolated"]], "o", color=t["series"][2],
                 markersize=8, zorder=5)
 
-    ax.axhline(PUBLISHED_CD, color=t["series"][1], linewidth=1.4,
-               linestyle=(0, (2, 2)), zorder=3,
-               label=f"Published: {PUBLISHED_CD:.4f}")
+    exp = published_cd(0.0)
+    if exp is not None:
+        ax.axhline(exp, color=t["series"][1], linewidth=1.4,
+                   linestyle=(0, (2, 2)), zorder=3,
+                   label=f"Experiment (Ladson TM 4074): {exp:.5f}")
 
     # Room on the right for the coarsest point's label, and the legend moved
     # off the two horizontal reference lines it was sitting on.
@@ -129,9 +146,16 @@ def main() -> None:
             print(f"observed order of convergence p = {res['p']:.2f}")
             print(f"Richardson extrapolation to h=0: Cd = {res['extrapolated']:.6f}")
             print(f"GCI on the finest grid          = {res['gci_fine']*100:.2f}%")
-            print(f"published Cd                    = {PUBLISHED_CD:.4f}")
-            err = (res["extrapolated"] - PUBLISHED_CD) / PUBLISHED_CD
-            print(f"extrapolated vs published       = {err*100:+.1f}%")
+            exp = published_cd(0.0)
+            if exp is None:
+                print("no digitised reference — comparison skipped")
+            else:
+                err = (res["extrapolated"] - exp) / exp
+                print(f"experiment (Ladson TM 4074)     = {exp:.5f}")
+                print(f"extrapolated vs experiment      = {err*100:+.1f}%")
+                inside = abs(err) < res["gci_fine"]
+                print(f"inside the {res['gci_fine']*100:.1f}% GCI band       "
+                      f"= {'yes' if inside else 'no'}")
         else:
             print("convergence is not monotone — Richardson extrapolation "
                   "does not apply to this sequence")

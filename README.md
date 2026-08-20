@@ -19,6 +19,8 @@ rather than left to be assumed.
 | Lift-curve slope | **0.10710/deg — 97.7% of 2π** |
 | Zero-lift angle | **+0.0001°** (symmetry requires 0) |
 | Best L/D | **46.9 at +8°** |
+| Lift vs experiment | **mean \|ΔCl\| = 0.0092** over −4..+14° |
+| Grid-converged drag vs experiment | **−3.4%**, inside the 6.4% GCI band |
 
 ## Running it
 
@@ -78,15 +80,70 @@ as the aerofoil loads. The mesh is sized for y+ ≈ 1 at *zero* incidence, and
 SST's ω wall treatment blends up to roughly y+ 3, so the last two points deserve
 less weight than the linear range.
 
-**A comparison against experiment.** The reference plotted is thin aerofoil
-theory, which is exact analysis. `compare.py` and `src/reference.py` exist to
-compare against digitised wind tunnel data, and the loader **refuses any dataset
-that does not declare its source, figure, Reynolds number, surface condition and
-who digitised it**. A NACA 0012 at Re 6e6 has a minimum drag near 0.0060 smooth
-and near 0.0085 with standard roughness — choosing the wrong one moves the
-comparison by more than every numerical effect here combined. Fill in
-`validation/reference/naca0012-template.json` from a source you have actually
-read, and the comparison runs.
+**Stall, in the experiment either.** The measurement stalls between 14.02° and
+15.06° with Cl_max 1.2169. The computation is still climbing at +14° and gives
+1.2673 there, 4.2% high — steady RANS cannot resolve the separated flow, so the
+last point is the least trustworthy in the sweep.
+
+## Comparison against experiment
+
+Reference: **Ladson, NASA TM 4074 (1988)**, Table VII — M = 0.15, transition
+fixed with No. 60-W grit, R = 6.00 × 10⁶, Langley Low-Turbulence Pressure
+Tunnel. The tripped case is the right comparison because this computation is
+fully turbulent from the leading edge with no transition model.
+
+![Lift curve vs experiment](validation/vs-experiment.png)
+
+| α | Cl | Cl exp | ΔCl | Cd | Cd exp | Δ counts |
+|---|---|---|---|---|---|---|
+| −4° | −0.4282 | −0.4297 | +0.0015 | 0.01166 | 0.01037 | +12.9 |
+| −2° | −0.2147 | −0.2182 | +0.0035 | 0.01026 | 0.00904 | +12.2 |
+| 0° | +0.0000 | −0.0043 | +0.0043 | 0.00980 | 0.00895 | +8.5 |
+| +2° | +0.2146 | +0.2081 | +0.0065 | 0.01027 | 0.00944 | +8.3 |
+| +4° | +0.4282 | +0.4231 | +0.0050 | 0.01167 | 0.00975 | +19.1 |
+| +6° | +0.6363 | +0.6348 | +0.0015 | 0.01413 | 0.01115 | +29.7 |
+| +8° | +0.8343 | +0.8324 | +0.0019 | 0.01780 | 0.01402 | +37.8 |
+| +10° | +1.0155 | +1.0102 | +0.0053 | 0.02278 | 0.01898 | +38.0 |
+| +12° | +1.1674 | +1.1552 | +0.0122 | 0.02947 | 0.02530 | +41.6 |
+| +14° | +1.2673 | +1.2167 | +0.0506 | 0.03905 | 0.03873 | +3.2 |
+
+**Lift agrees to a mean absolute error of 0.0092** across the whole sweep, and
+to better than 0.007 everywhere below +12°. The +14° point is the worst at
++0.051, which is the computation failing to stall rather than a modelling error
+in the attached régime.
+
+**Drag on the L3 mesh runs 8 to 42 counts high**, and most of that is
+discretisation rather than physics. The mesh study extrapolates Cd at zero
+incidence to **0.008645** against a measured **0.00895** — **−3.4%**, which
+sits *inside* the 6.4% GCI band. The computation therefore agrees with
+experiment to within its own numerical uncertainty, and the L3 discrepancy is
+the grid, not the model.
+
+### The reference constant was wrong, and that is the point
+
+Before the data was digitised this repository carried `PUBLISHED_CD = 0.0080`,
+written from memory. That figure belongs to a **smooth** aerofoil with free
+transition. The tripped case at Re 6 × 10⁶ is **0.00895** — a 12% difference,
+and in the direction that matters:
+
+| reference used | extrapolated Cd vs it |
+|---|---|
+| 0.0080, from memory | **+8.1%** |
+| 0.00895, Ladson TM 4074 tripped | **−3.4%** |
+
+The bad constant made the model look worse than it is *and* pointed the error
+the wrong way. Nothing about it looked suspicious. `analyse.py` no longer holds
+a drag constant at all — it reads the digitised reference, so the failure mode
+cannot recur.
+
+### How the digitisation was checked
+
+TM 4074 prints its own lift-to-drag column beside Cl and Cd. Every one of the 14
+rows was checked by confirming Cl/Cd reproduces it, worst disagreement 0.024 —
+consistent with rounding at four to five significant figures. A transposed or
+misread digit in either coefficient breaks that ratio while both numbers still
+look plausible alone, so the loader now enforces the check on any dataset that
+carries an `l_over_d` field.
 
 ## Layout
 
@@ -98,5 +155,6 @@ src/reference.py   digitised experimental data, with provenance enforced
 study.py           mesh independence sweep      analyse.py   GCI + figure
 sweep.py           angle-of-attack sweep        polar.py     lift curve, polars
 compare.py         computed vs experiment
+validation/reference/  digitised experimental data + a refused template
 foam.sh            run an OpenFOAM command against ./case
 ```
