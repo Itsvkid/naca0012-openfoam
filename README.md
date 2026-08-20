@@ -1,5 +1,7 @@
 # NACA 0012 in OpenFOAM
 
+[![CI](https://github.com/Itsvkid/naca0012-openfoam/actions/workflows/ci.yml/badge.svg)](https://github.com/Itsvkid/naca0012-openfoam/actions/workflows/ci.yml)
+
 A structured C-grid generated from parameters, a grid convergence study with a
 Grid Convergence Index, and a ten-angle polar — with the limits of each stated
 rather than left to be assumed.
