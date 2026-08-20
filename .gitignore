@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+
+# OpenFOAM output. Commit the inputs — case dictionaries and 0/ — and the
+# figures; everything else regenerates from them.
+case/[1-9]*
+case/0.*
+case/constant/polyMesh/
+case/postProcessing/
+case/log.*
+case/*.foam
+case/processor*/
+*.vtk
+*.vtu

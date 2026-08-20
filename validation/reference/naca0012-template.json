@@ -1,0 +1,25 @@
+{
+  "_instructions": [
+    "This is a TEMPLATE and the loader will refuse it until it is filled in.",
+    "",
+    "Digitise a published polar and put the points below. Suitable sources:",
+    "  - Abbott & Von Doenhoff, Theory of Wing Sections, Appendix IV",
+    "  - NASA Langley Turbulence Modeling Resource, 2D NACA 0012 case",
+    "  - Ladson, NASA TM 4074 (1988), effect of Reynolds number and roughness",
+    "",
+    "Record the SURFACE CONDITION. A NACA 0012 at Re 6e6 has a minimum drag",
+    "coefficient near 0.0060 smooth and near 0.0085 with standard roughness.",
+    "Choosing the wrong one shifts the comparison by more than every numerical",
+    "effect in this project combined.",
+    "",
+    "The computation here is fully turbulent from the leading edge, so it should",
+    "be compared against the roughened case, or the difference explained."
+  ],
+  "source": "TODO",
+  "figure": "TODO",
+  "reynolds": 6000000,
+  "surface_condition": "TODO",
+  "digitised_by": "TODO",
+  "notes": "",
+  "points": []
+}
