@@ -12,7 +12,15 @@ figure              the specific figure or table the points were read from
 reynolds            the experiment's Reynolds number, not the computation's
 surface_condition   "smooth" or "standard roughness" — they differ by more than
                     the discrepancy most CFD comparisons are trying to resolve
-digitised_by        who read the points off, and when
+digitised_by        who read the points off, and how it was checked
+
+Optional but worth carrying
+---------------------------
+source_sha256       checksum of the exact document the points came from, so a
+                    reader can confirm they are looking at the same edition
+                    rather than a different scan with different pagination
+l_over_d            the source's own lift-to-drag column, if it prints one —
+                    the loader then verifies Cl/Cd reproduces it
 
 A NACA 0012 at Re 6e6 has a drag coefficient near 0.0060 smooth and near 0.0085
 with standard roughness. Comparing a computation against the wrong one moves the

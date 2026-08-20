@@ -136,6 +136,11 @@ the wrong way. Nothing about it looked suspicious. `analyse.py` no longer holds
 a drag constant at all — it reads the digitised reference, so the failure mode
 cannot recur.
 
+The exact document is pinned by checksum in the reference file
+(`sha256 8e466706…`), so anyone can confirm they are reading the same edition
+rather than a different scan with different pagination. Points come from PDF
+pages 18–19, report pages 16–17.
+
 ### How the digitisation was checked
 
 TM 4074 prints its own lift-to-drag column beside Cl and Cd. Every one of the 14

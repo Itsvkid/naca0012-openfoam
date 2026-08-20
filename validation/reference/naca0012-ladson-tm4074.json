@@ -5,7 +5,7 @@
   "reynolds": 6000000.0,
   "mach": 0.15,
   "surface_condition": "standard roughness",
-  "digitised_by": "extracted from the PDF text layer, every row cross-checked against the report own L/D column (worst disagreement 0.024, consistent with 4-5 significant figure rounding)",
+  "digitised_by": "Extracted from the PDF text layer of the file whose sha256 is recorded above. Every row cross-checked against the report's own lift-to-drag column: Cl/Cd reproduces it to within 0.024, consistent with rounding at four to five significant figures.",
   "notes": "Transition fixed with grit, which is the correct comparison for a fully turbulent computation with no transition model. Experiment is at M = 0.15 against an incompressible computation; the Prandtl-Glauert factor is 1.011, so compressibility accounts for about 1% of lift. Stall occurs between 14.02 and 15.06 degrees with Cl_max 1.2169.",
   "points": [
     {
@@ -106,5 +106,7 @@
       "cm": -0.094,
       "l_over_d": 3.53
     }
-  ]
+  ],
+  "source_sha256": "8e466706cbdf54b3c778ea2b089c4f52d87686bf7f6b1bd10d224b42c2d06902",
+  "source_pages": "PDF pages 18-19 (report pages 16-17)"
 }
