@@ -31,6 +31,7 @@ colima start --cpu 4 --memory 4 --disk 20     # macOS; any Docker host works
 ./foam.sh 'blockMesh && checkMesh'
 ./foam.sh 'simpleFoam > log.simpleFoam 2>&1'
 
+pip install -e ".[dev]"                       # once
 python -m pytest tests -q                     # 53 tests, no Docker needed
 python study.py && python analyse.py          # mesh independence + GCI
 python sweep.py && python polar.py            # alpha sweep + polars

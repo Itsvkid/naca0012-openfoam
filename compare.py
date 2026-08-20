@@ -20,13 +20,14 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).parent))
 from polar import THEMES, _axes  # noqa: E402
-from src.reference import compare, load  # noqa: E402
+from src.reference import Reference, compare, load  # noqa: E402
 
 HERE = Path(__file__).parent
 SWEEP = HERE / "validation" / "alpha-sweep.json"
 
 
-def figure(rows, ref, theme="light", suffix=""):
+def figure(rows: list[dict], ref: Reference, theme: str = "light",
+           suffix: str = "") -> Path:
     t = THEMES[theme]
     have = [r for r in rows if r["cl_ref"] is not None]
     fig, ax = _axes(t, f"Lift curve vs experiment — {ref.surface_condition}, "

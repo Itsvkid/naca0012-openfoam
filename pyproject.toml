@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "naca0012-openfoam"
+version = "1.0.0"
+description = "Structured C-grid CFD of a NACA 0012 in OpenFOAM: mesh generated from parameters, grid convergence with GCI, and a validated polar."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "matplotlib>=3.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools]
+# Package named "src" for the same reason project 03's does — every project
+# in this portfolio imports `from src.module import X` consistently; this
+# makes that importable from anywhere via `pip install -e .` instead of only
+# from this directory on PYTHONPATH.
+packages = ["src"]
+
+[tool.setuptools.package-data]
+src = ["py.typed"]

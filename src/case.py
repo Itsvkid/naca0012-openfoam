@@ -72,7 +72,8 @@ class Case:
     def k_inf(self) -> float:
         return self.nut_inf * self.omega_inf
 
-    def _field(self, obj, dims, internal, wall, freestream, cls="volScalarField"):
+    def _field(self, obj: str, dims: str, internal: str, wall: str,
+               freestream: str, cls: str = "volScalarField") -> str:
         return f"""{HEAD.format(cls=cls, loc="0", obj=obj)}
 dimensions      {dims};
 
@@ -88,7 +89,7 @@ boundaryField
 }}
 """
 
-    def write(self, case_dir) -> list[Path]:
+    def write(self, case_dir: str | Path) -> list[Path]:
         case = Path(case_dir)
         (case / "0").mkdir(parents=True, exist_ok=True)
         (case / "constant").mkdir(parents=True, exist_ok=True)
@@ -96,9 +97,9 @@ boundaryField
 
         ux, uy = (c * self.velocity for c in self.flow_direction)
         u_vec = f"({ux:.10g} {uy:.10g} 0)"
-        written = []
+        written: list[Path] = []
 
-        def put(rel, text):
+        def put(rel: str, text: str) -> None:
             p = case / rel
             p.write_text(text)
             written.append(p)

@@ -24,6 +24,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.axes import Axes  # noqa: E402
+from matplotlib.figure import Figure  # noqa: E402
 
 HERE = Path(__file__).parent
 RESULTS = HERE / "validation" / "alpha-sweep.json"
@@ -44,7 +46,8 @@ THEMES = {
 }
 
 
-def lift_slope(points, lo=LINEAR_RANGE[0], hi=LINEAR_RANGE[1]):
+def lift_slope(points: list[dict], lo: float = LINEAR_RANGE[0],
+                hi: float = LINEAR_RANGE[1]) -> dict | None:
     """Least-squares dCl/dalpha over the linear range, with the intercept.
 
     The intercept is the zero-lift angle check: a symmetric section must give
@@ -66,7 +69,8 @@ def lift_slope(points, lo=LINEAR_RANGE[0], hi=LINEAR_RANGE[1]):
             "vs_thin_aerofoil": slope / TWO_PI_PER_DEG, "n_points": n}
 
 
-def _axes(t, title, xlabel, ylabel, size=(7.2, 4.6)):
+def _axes(t: dict, title: str, xlabel: str, ylabel: str,
+          size: tuple[float, float] = (7.2, 4.6)) -> tuple[Figure, Axes]:
     fig, ax = plt.subplots(figsize=size, dpi=160)
     fig.patch.set_facecolor(t["surface"])
     ax.set_facecolor(t["surface"])
@@ -84,7 +88,7 @@ def _axes(t, title, xlabel, ylabel, size=(7.2, 4.6)):
     return fig, ax
 
 
-def figures(data, theme="light", suffix=""):
+def figures(data: dict, theme: str = "light", suffix: str = "") -> list[Path]:
     t = THEMES[theme]
     pts = sorted(data["points"], key=lambda p: p["alpha"])
     a = [p["alpha"] for p in pts]

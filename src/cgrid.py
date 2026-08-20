@@ -166,7 +166,7 @@ class CGrid:
     # meet along the wake centreline. The leading edge and the upstream point
     # are shared too, so the front blocks join along the upstream axis.
 
-    def _plane_points(self):
+    def _plane_points(self) -> list[tuple[float, float]]:
         c, R, L = self.chord, self.radius, self.wake_length * self.chord
         xte = self.te[0]
         upper, lower = self.surface_points(True), self.surface_points(False)
@@ -209,7 +209,8 @@ class CGrid:
             total += x1 * y2 - x2 * y1
         return total > 0
 
-    def _blocks(self):
+    def _blocks(self) -> list[tuple[str, tuple[int, int, int, int],
+                              tuple[int, int, int], tuple[float, float, float]]]:
         ns, nn, nw = self.n_surface // 2, self.n_normal, self.n_wake
         en, ew = self.expansion_normal, self.expansion_wake
         # (name, base-plane vertices, cell counts, grading)

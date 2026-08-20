@@ -30,7 +30,7 @@ HERE = Path(__file__).parent
 REFERENCE = HERE / "validation" / "reference" / "naca0012-ladson-tm4074.json"
 
 
-def published_cd(alpha: float = 0.0):
+def published_cd(alpha: float = 0.0) -> float | None:
     """Experimental drag at `alpha`, or None if no reference is digitised yet."""
     try:
         from src.reference import load
@@ -46,7 +46,7 @@ THEMES = {
 }
 
 
-def gci(f1, f2, f3, r):
+def gci(f1: float, f2: float, f3: float, r: float) -> dict | None:
     """Roache GCI from three grids, finest first.
 
     Returns observed order p, the Richardson-extrapolated value, and the GCI on
@@ -68,7 +68,7 @@ def gci(f1, f2, f3, r):
             "monotone": True}
 
 
-def figure(data, theme="light", suffix=""):
+def figure(data: dict, theme: str = "light", suffix: str = "") -> Path:
     t = THEMES[theme]
     levels = data["levels"]
     h = [1.0 / math.sqrt(l["cells"]) for l in levels]      # representative size
