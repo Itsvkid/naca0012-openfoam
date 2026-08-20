@@ -38,8 +38,8 @@ functions
         patches         (aerofoil);
         rho             rhoInf;
         rhoInf          1;
-        liftDir         (-0.1045284633 0.9945218954 0);
-        dragDir         (0.9945218954 0.1045284633 0);
+        liftDir         (-0.2419218956 0.9702957263 0);
+        dragDir         (0.9702957263 0.2419218956 0);
         CofR            (0.25 0 0);
         pitchAxis       (0 0 1);
         magUInf         1;

@@ -28,7 +28,13 @@ import matplotlib.pyplot as plt  # noqa: E402
 HERE = Path(__file__).parent
 RESULTS = HERE / "validation" / "alpha-sweep.json"
 TWO_PI_PER_DEG = 2.0 * math.pi * math.pi / 180.0     # 0.1097 per degree
-LINEAR_RANGE = (-4.0, 8.0)
+# -4..+4 only. Widening to +8 pulls the slope from 0.1071 to 0.1057 and drags
+# the fitted zero-lift angle from +0.0001 to +0.0119 degrees. Symmetry requires
+# that angle to be exactly zero, so its drift is not a physical result — it is
+# the fit reporting that it has swallowed points which are no longer on a
+# straight line. The zero-lift angle is therefore the diagnostic for choosing
+# the range, not a free output.
+LINEAR_RANGE = (-4.0, 4.0)
 
 THEMES = {
     "light": {"surface": "#fcfcfb", "ink": "#0b0b0b", "ink_muted": "#52514e",
@@ -150,6 +156,23 @@ def main() -> None:
         print(f"{p['alpha']:>+7.1f} {p['cl']:>+9.4f} {p['cd']:>9.5f} "
               f"{p['cl']/p['cd']:>8.1f} {p['y_plus_max']:>7.2f} "
               f"{p['cl_drift']:>9.1e}")
+
+    print("\nfit-range sensitivity (zero-lift angle must be 0 by symmetry):")
+    for lo, hi in ((-4.0, 4.0), (-4.0, 6.0), (-4.0, 8.0), (-4.0, 10.0)):
+        f = lift_slope(pts, lo, hi)
+        if f:
+            print(f"  {lo:+.0f}..{hi:+.0f}  slope {f['slope_per_deg']:.5f}/deg  "
+                  f"{f['vs_thin_aerofoil']*100:5.1f}% of 2π   "
+                  f"α₀ {f['alpha_zero_lift']:+.4f}°")
+
+    strict = lift_slope(pts, *LINEAR_RANGE)
+    if strict:
+        print("\ndeparture from the linear fit:")
+        for q in pts:
+            if q["alpha"] > LINEAR_RANGE[1]:
+                lin = strict["slope_per_deg"] * q["alpha"] + strict["cl_at_zero"]
+                print(f"  α={q['alpha']:+5.1f}  linear {lin:.4f}  "
+                      f"computed {q['cl']:.4f}  {100*(q['cl']-lin)/lin:+.1f}%")
 
     fit = lift_slope(pts)
     if fit:

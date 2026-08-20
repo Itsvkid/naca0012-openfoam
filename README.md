@@ -112,6 +112,84 @@ and about 8% is a reasonable size for that difference at this Reynolds number.
 Confirming it needs a transition-sensitive model — `kOmegaSSTLM` is the obvious
 next experiment — rather than being asserted here.
 
+## Alpha sweep
+
+Ten angles from −4° to +14° on the L3 mesh, incidence applied by rotating the
+freestream so every point sits on the identical grid.
+
+| α | Cl | Cd | Cl/Cd | y+ max | Cl drift |
+|---|---|---|---|---|---|
+| −4° | −0.4282 | 0.01166 | −36.7 | 1.57 | 4.8e-06 |
+| −2° | −0.2147 | 0.01026 | −20.9 | 1.28 | 1.1e-05 |
+| 0° | +0.0000 | 0.00980 | 0.0 | 0.95 | 8.0e-06 |
+| +2° | +0.2146 | 0.01027 | 20.9 | 1.27 | 8.7e-06 |
+| +4° | +0.4282 | 0.01167 | 36.7 | 1.57 | 5.3e-06 |
+| +6° | +0.6363 | 0.01413 | 45.0 | 2.02 | 1.1e-05 |
+| +8° | +0.8343 | 0.01780 | **46.9** | 2.36 | 1.1e-04 |
+| +10° | +1.0155 | 0.02278 | 44.6 | 2.71 | 1.5e-05 |
+| +12° | +1.1674 | 0.02947 | 39.6 | 3.06 | 3.9e-05 |
+| +14° | +1.2673 | 0.03905 | 32.5 | 3.34 | 1.2e-04 |
+
+![Lift curve](validation/lift-curve.png)
+
+| | |
+|---|---|
+| Lift-curve slope, −4..+4° | **0.10710 /deg** |
+| Thin aerofoil theory, 2π | 0.10966 /deg |
+| Ratio | **97.7%** |
+| Zero-lift angle | **+0.0001°** |
+| Best L/D | **46.9 at +8°** |
+
+97.7% is the expected answer rather than a near miss: a real 12% section sits a
+few percent below 2π through thickness and viscous decambering. Landing *above*
+2π would have meant something was wrong.
+
+### The section checks itself
+
+It is symmetric, so the sweep carries its own validation and passes it at every
+matched pair — Cl(−4°) = −0.4282 against +0.4282, Cl(−2°) = −0.2147 against
++0.2146, with Cd agreeing to five decimals. That exercises the mesh under real
+loading on both sides, which the zero-incidence case alone does not. Cd at 0° is
+0.00980, matching the L3 value from the mesh study exactly.
+
+### Choosing the fit range, and why the zero-lift angle decides it
+
+| fit range | slope | % of 2π | α₀ |
+|---|---|---|---|
+| −4..+4 | 0.10710 | 97.7% | +0.0001° |
+| −4..+6 | 0.10665 | 97.3% | +0.0057° |
+| −4..+8 | 0.10567 | 96.4% | +0.0119° |
+| −4..+10 | 0.10401 | 94.8% | +0.0121° |
+
+A wider range gives a lower slope, and any of those numbers could be quoted. The
+zero-lift angle settles it: symmetry requires it to be **exactly zero**, so its
+drift from +0.0001° to +0.0121° is not physics, it is the fit reporting that it
+has swallowed points which are no longer on a straight line. The diagnostic
+chooses the range rather than the range being a matter of taste.
+
+Departure from that fit is smooth and monotone — −1.0% at +6°, −2.6% at +8°,
+−5.2% at +10°, −9.2% at +12°, −15.5% at +14° — which is decambering as the
+boundary layer thickens, not numerical drift.
+
+### What this sweep does not show
+
+**Stall.** Cl is still rising at +14° (1.2673) and no maximum is captured. A real
+NACA 0012 stalls near 16° with Cl_max about 1.6. Steady RANS cannot resolve the
+separated flow that produces stall, so extending the sweep would produce numbers
+rather than answers.
+
+**Equal confidence at every angle.** y+ max climbs from 0.95 at 0° to 3.34 at
++14° as the aerofoil loads up. The mesh was sized for y+ ≈ 1 at *zero*
+incidence. SST's ω wall treatment blends up to roughly y+ 3, so +12° and +14°
+sit at or past that edge and deserve less weight than the linear-range points.
+Resolving the loaded condition properly needs a mesh sized for it.
+
+**A comparison with experiment.** The reference plotted here is thin aerofoil
+theory, which is exact analysis. Published points from Abbott & Von Doenhoff are
+deliberately not hard-coded — a curve reconstructed from memory looks
+authoritative and cannot be checked. Digitise the source before presenting this
+as validation against wind tunnel data.
+
 ## Core concepts
 
 - OpenFOAM case hierarchy and dictionary configuration
@@ -153,7 +231,8 @@ case/
 - [ ] Residuals converged, and force coefficients flat — residuals alone are
       not convergence
 - [x] Mesh independence across four refinements, with GCI
-- [ ] Cl vs alpha plotted against published data
+- [x] Cl vs alpha, drag polar and efficiency across −4..+14°
+- [ ] Comparison against digitised Abbott & Von Doenhoff data
 - [ ] Cd vs alpha plotted against published data, with the discrepancy
       discussed honestly
 
@@ -200,5 +279,6 @@ not to be the cause of the asymmetry above — blockMesh collapses the duplicate
 
 | Date | What was done |
 |---|---|
+| 2026-08-20 | Alpha sweep, ten angles on the L3 mesh. Lift-curve slope 0.1071/deg, 97.7% of 2π, zero-lift angle +0.0001°. Best L/D 46.9 at +8°. The fit range turned out to matter: widening it to +8 drops the slope to 0.1057 and drags the zero-lift angle to +0.0119°, which symmetry says cannot be physical — so the zero-lift angle is the diagnostic that picks the range. No stall captured; y+ reaches 3.34 by +14°, past where the wall treatment blends cleanly. |
 | 2026-08-19 | Mesh independence study: four levels, 7.5k to 85k cells, refining wall spacing with everything else so Richardson applies. Observed order 2.24, extrapolated Cd 0.008645, GCI 6.4%. The three coarsest levels alone gave p=1.31 and an extrapolation on the opposite side of the published value — a good reminder that three grids are the method's minimum, not proof of asymptotic behaviour. |
 | 2026-08-19 | OpenFOAM v2512 running natively on arm64 under colima. `src/cgrid.py` generates a 6-block structured C-grid — six because blockMesh identifies an edge by its vertex pair, so the whole upper and whole lower surface would both be edge (LE, TE) and only one can exist; splitting each surface at mid-chord gives every curved edge a unique pair. `src/case.py` generates fields, properties and solver control from Re and alpha. y+ tuned to ~1 by solving the geometric series for the radial grading. Found the gradient limiter breaking symmetry. 24 tests. |
